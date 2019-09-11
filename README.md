@@ -9,7 +9,7 @@ This project is a Linux system process monitor. It is written in C++, compliant 
 
 <!-- TODO: Replace image below with one of your own. -->
 ![System Monitor](images/monitor.png)<br>
-*Sample Execution*
+*Sample Execution Screenshot*
 
 ## Environment
 This project was completed on Bento/Ubuntu 19.04 with the following packages installed via package manager `build-essential` and `cmake`. The build-essential package included the GCC 8.3.0 (Ubuntu 8.3.0-6ubuntu1) compiler employed to compile C++ code according to the 2017 standard. After the prior installations, it was noticed that `libncurses5-dev` had already been installed.
