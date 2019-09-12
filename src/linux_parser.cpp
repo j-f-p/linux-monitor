@@ -66,8 +66,29 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+// Read and return the system memory utilization.
+float LinuxParser::MemoryUtilization() {
+  string line;
+  string key;
+  int firstValue;
+  float mem_tot, mem_free;
+  bool not_done = true;
+  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
+  if (filestream.is_open()) {
+    while (not_done and std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      linestream >> key >> firstValue;
+      if (key == "MemTotal:") {
+        mem_tot = firstValue;
+      } else
+      if (key == "MemFree:") {
+        mem_free = firstValue;
+        not_done = false;
+      }
+    }
+  }
+  return (mem_tot - mem_free) / mem_tot;
+}
 
 // Read system uptime from filesystem.
 long LinuxParser::UpTime() {
@@ -107,11 +128,9 @@ int LinuxParser::TotalProcesses() {
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
-      while (linestream >> key >> firstValue) {
-        if (key == "processes") {
-          return firstValue;
-        }
-      }
+      linestream >> key >> firstValue;
+      if (key == "processes")
+        return firstValue;
     }
   }
   return -1;
@@ -126,11 +145,9 @@ int LinuxParser::RunningProcesses() {
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
-      while (linestream >> key >> firstValue) {
-        if (key == "procs_running") {
-          return firstValue;
-        }
-      }
+      linestream >> key >> firstValue;
+      if (key == "procs_running")
+        return firstValue;
     }
   }
   return -1;
