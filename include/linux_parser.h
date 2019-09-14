@@ -4,6 +4,8 @@
 #include <fstream>
 #include <regex>
 #include <string>
+#include <vector>
+#include <unordered_map>
 
 namespace LinuxParser {
 // Paths
@@ -28,7 +30,7 @@ std::string OperatingSystem();
 std::string Kernel();
 
 // CPU
-std::vector<long> aggregateCPUtickData();
+std::unordered_map<std::string, long> aggregateCPUtickData();
 long ActiveJiffies(int pid);
 
 // Processes

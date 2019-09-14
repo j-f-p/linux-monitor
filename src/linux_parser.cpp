@@ -1,14 +1,12 @@
 #include <dirent.h>
 #include <unistd.h>
-#include <string>
-#include <vector>
 
 #include "linux_parser.h"
 
 using std::stoi;
 using std::string;
-using std::to_string;
 using std::vector;
+using std::unordered_map;
 
 // Read OS from the filesystem.
 string LinuxParser::OperatingSystem() {
@@ -108,7 +106,7 @@ long LinuxParser::UpTime() {
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // Read and return CPU utilization.
-vector<long> LinuxParser::aggregateCPUtickData() {
+unordered_map<string, long> LinuxParser::aggregateCPUtickData() {
   string line;
   string label;
   long user, nice, system, idle, iowait, irq, softirq, steal;
@@ -119,8 +117,11 @@ vector<long> LinuxParser::aggregateCPUtickData() {
     linestream >> label >> user >> nice >> system
                >> idle >> iowait >> irq >> softirq >> steal;
   }
-  return vector<long> {
-    user, nice, system, idle, iowait, irq, softirq, steal};
+  return unordered_map<string, long> {
+    {"user", user}, {"nice", nice}, {"system", system},
+    {"idle", idle}, {"iowait", iowait},
+    {"irq", irq}, {"softirq", softirq}, {"steal", steal}
+  };
 }
 
 // Read and return the total number of processes.
