@@ -1,7 +1,14 @@
 #include "processor.h"
+
 #include "linux_parser.h"
 
-using std::chrono::milliseconds;
+#include <chrono> // seconds
+#include <thread> // sleep_for
+// Included and needed in linux_parser.h:
+// <string>
+// <unordered_map>
+
+using std::chrono::seconds;
 using std::this_thread::sleep_for;
 using std::string;
 using std::unordered_map;
@@ -13,7 +20,7 @@ float Processor::Utilization() {
     + ticks["irq"] + ticks["softirq"] + ticks["steal"];
   long idletickTypes = ticks["idle"] + ticks["iowait"];
 
-  sleep_for(milliseconds(1000));
+  sleep_for(seconds(1));
 
   ticks = LinuxParser::aggregateCPUtickData();
   activetickTypes = ticks["user"] + ticks["nice"] + ticks["system"]

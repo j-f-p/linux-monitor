@@ -1,10 +1,12 @@
+#include "process.h"
+
 #include <unistd.h>
 #include <cctype>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "process.h"
+// Included and needed in process.h:
+// <string> // to_string
 
 using std::string;
 using std::to_string;

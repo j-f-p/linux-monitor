@@ -1,10 +1,11 @@
 #ifndef NCURSES_DISPLAY_H
 #define NCURSES_DISPLAY_H
 
-#include <curses.h>
+#include "system.h" // System
+// Included and needed in system.h:
+// process.h which includes <string> and declares Process
 
-#include "process.h"
-#include "system.h"
+#include <curses.h> // WINDOW
 
 namespace NCursesDisplay {
 void Display(System& system, int n = 10);

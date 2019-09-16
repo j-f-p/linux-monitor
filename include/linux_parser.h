@@ -1,11 +1,9 @@
 #ifndef SYSTEM_PARSER_H
 #define SYSTEM_PARSER_H
 
-#include <fstream>
-#include <regex>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace LinuxParser {
 // Paths

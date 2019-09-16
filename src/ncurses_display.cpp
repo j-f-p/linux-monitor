@@ -1,20 +1,25 @@
-#include <curses.h>
-#include <chrono>
-#include <string>
-#include <thread>
-#include <vector>
-
-#include "format.h"
 #include "ncurses_display.h"
-#include "system.h"
+#include "format.h" // ElapsedTime
+
+#include <chrono> // milliseconds
+#include <thread> // sleep_for
+
+// Included and needed in ncurses_display.h:
+// system.h which includes:
+//   process.h which includes <string> // to_string
+//   <vector>
+// <curses.h> // https://pubs.opengroup.org/onlinepubs/7908799/xcurses/curses.h.html
 
 using std::string;
 using std::to_string;
+using std::vector;
+using std::chrono::milliseconds;
+using std::this_thread::sleep_for;
 
 // 50 bars uniformly displayed from 0 - 100 %
 // 2% is one bar(|)
-std::string NCursesDisplay::ProgressBar(float percent) {
-  std::string result{"0%"};
+string NCursesDisplay::ProgressBar(float percent) {
+  string result{"0%"};
   int size{50};
   float bars{percent * size};
 
@@ -52,7 +57,7 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
   wrefresh(window);
 }
 
-void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
+void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
                                       WINDOW* window, int n) {
   int row{0};
   int const pid_column{2};
@@ -103,7 +108,7 @@ void NCursesDisplay::Display(System& system, int n) {
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    sleep_for(milliseconds(1));
   }
   endwin();
 }

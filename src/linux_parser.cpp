@@ -1,28 +1,43 @@
+#include "linux_parser.h"
+
+// dirent.h and unistd.h are used by vector<int> LinuxParser::Pids()
 #include <dirent.h>
 #include <unistd.h>
 
-#include "linux_parser.h"
+#include <algorithm> // replace, all_of
+#include <fstream> // ifstream
+// #include <regex> // TODO: Employ or delete.
+#include <sstream> // istringstream
+// Included and needed in linux_parser.h:
+// <string> // stoi and getline
+// <unordered_map>
+// <vector>
 
-using std::stoi;
+using std::replace;
+using std::all_of;
+using std::ifstream;
+using std::istringstream;
 using std::string;
-using std::vector;
+using std::stoi;
+using std::getline;
 using std::unordered_map;
+using std::vector;
 
 // Read OS from the filesystem.
 string LinuxParser::OperatingSystem() {
   string line;
   string key;
   string value;
-  std::ifstream filestream(kOSPath);
+  ifstream filestream(kOSPath);
   if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::replace(line.begin(), line.end(), ' ', '_');
-      std::replace(line.begin(), line.end(), '=', ' ');
-      std::replace(line.begin(), line.end(), '"', ' ');
-      std::istringstream linestream(line);
+    while (getline(filestream, line)) {
+      replace(line.begin(), line.end(), ' ', '_');
+      replace(line.begin(), line.end(), '=', ' ');
+      replace(line.begin(), line.end(), '"', ' ');
+      istringstream linestream(line);
       while (linestream >> key >> value) {
         if (key == "PRETTY_NAME") {
-          std::replace(value.begin(), value.end(), '_', ' ');
+          replace(value.begin(), value.end(), '_', ' ');
           return value;
         }
       }
@@ -35,10 +50,10 @@ string LinuxParser::OperatingSystem() {
 string LinuxParser::Kernel() {
   string os, versionLabel, kernel;
   string line;
-  std::ifstream stream(kProcDirectory + kVersionFilename);
+  ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
-    std::getline(stream, line);
-    std::istringstream linestream(line);
+    getline(stream, line);
+    istringstream linestream(line);
     linestream >> os >> versionLabel >> kernel;
   }
   return kernel;
@@ -54,7 +69,7 @@ vector<int> LinuxParser::Pids() {
     if (file->d_type == DT_DIR) {
       // Is every character of the name a digit?
       string filename(file->d_name);
-      if (std::all_of(filename.begin(), filename.end(), isdigit)) {
+      if (all_of(filename.begin(), filename.end(), isdigit)) {
         int pid = stoi(filename);
         pids.push_back(pid);
       }
@@ -71,10 +86,10 @@ float LinuxParser::MemoryUtilization() {
   int firstValue;
   float mem_tot, mem_free;
   bool not_done = true;
-  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
+  ifstream filestream(kProcDirectory + kMeminfoFilename);
   if (filestream.is_open()) {
-    while (not_done and std::getline(filestream, line)) {
-      std::istringstream linestream(line);
+    while (not_done and getline(filestream, line)) {
+      istringstream linestream(line);
       linestream >> key >> firstValue;
       if (key == "MemTotal:") {
         mem_tot = firstValue;
@@ -92,10 +107,10 @@ float LinuxParser::MemoryUtilization() {
 long LinuxParser::UpTime() {
   string line;
   long uptime_as_long;
-  std::ifstream stream(kProcDirectory + kUptimeFilename);
+  ifstream stream(kProcDirectory + kUptimeFilename);
   if (stream.is_open()) {
-    std::getline(stream, line);
-    std::istringstream linestream(line);
+    getline(stream, line);
+    istringstream linestream(line);
     linestream >> uptime_as_long;
   }
   return uptime_as_long;
@@ -110,10 +125,10 @@ unordered_map<string, long> LinuxParser::aggregateCPUtickData() {
   string line;
   string label;
   long user, nice, system, idle, iowait, irq, softirq, steal;
-  std::ifstream stream(kProcDirectory + kStatFilename);
+  ifstream stream(kProcDirectory + kStatFilename);
   if (stream.is_open()) {
-    std::getline(stream, line);
-    std::istringstream linestream(line);
+    getline(stream, line);
+    istringstream linestream(line);
     linestream >> label >> user >> nice >> system
                >> idle >> iowait >> irq >> softirq >> steal;
   }
@@ -129,10 +144,10 @@ int LinuxParser::TotalProcesses() {
   string line;
   string key;
   int firstValue;
-  std::ifstream filestream(kProcDirectory + kStatFilename);
+  ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::istringstream linestream(line);
+    while (getline(filestream, line)) {
+      istringstream linestream(line);
       linestream >> key >> firstValue;
       if (key == "processes")
         return firstValue;
@@ -146,10 +161,10 @@ int LinuxParser::RunningProcesses() {
   string line;
   string key;
   int firstValue;
-  std::ifstream filestream(kProcDirectory + kStatFilename);
+  ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
-    while (std::getline(filestream, line)) {
-      std::istringstream linestream(line);
+    while (getline(filestream, line)) {
+      istringstream linestream(line);
       linestream >> key >> firstValue;
       if (key == "procs_running")
         return firstValue;
