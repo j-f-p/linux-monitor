@@ -2,8 +2,11 @@
 
 #include "linux_parser.h"
 
+#include <algorithm> // sort
+#include <functional> // greater
+
 // #include <cstddef> // size_t // TODO: Employ or delete.
-// #include <set> // set // TODO: Employ or delete.
+// #include <set> // TODO: Employ or delete.
 
 // Included and needed in system.h:
 // process.h which includes <string>
@@ -14,6 +17,8 @@
 
 // using std::set; // TODO: Employ or delete.
 // using std::size_t; // TODO: Employ or delete.
+using std::sort;
+using std::greater;
 using std::string;
 using std::vector;
 
@@ -24,12 +29,11 @@ Processor& System::Cpu() { return cpu_; }
 vector<Process>& System::Processes() {
   vector<int> pids{LinuxParser::Pids()};
 
-  vector<Process> procs;
+  processes_.clear();
   for(int pid: pids)
-    procs.emplace_back(pid);
+    processes_.emplace_back(pid);
 
-  processes_ = procs;
-
+  sort(processes_.begin(), processes_.end(), greater<>());
   return processes_;
 }
 
