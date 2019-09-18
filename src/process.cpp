@@ -1,22 +1,24 @@
 #include "process.h"
+#include "linux_parser.h"
 
-#include <unistd.h>
-#include <cctype>
-#include <sstream>
-#include <string>
-#include <vector>
+// #include <unistd.h> // TODO: Employ or delete.
+// #include <cctype> // TODO: Employ or delete.
+// #include <sstream> // TODO: Employ or delete.
 // Included and needed in process.h:
 // <string> // to_string
 
-using std::string;
-using std::to_string;
-using std::vector;
+// Included and needed in linux_parser.h:
+// <vector>
 
-// TODO: Return this process's ID
+using std::string;
+// using std::to_string; // TODO: Employ or delete.
+// using std::vector; // TODO: Employ or delete.
+
+// Return this process's ID
 int Process::Pid() { return id; }
 
 // TODO: Return the user (name) that generated this process
-string Process::User() { return string(); }
+string Process::User() { return LinuxParser::User(id); }
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() { return 0; }

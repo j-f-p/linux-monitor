@@ -6,20 +6,22 @@
 
 #include <algorithm> // replace, all_of
 #include <fstream> // ifstream
-// #include <regex> // TODO: Employ or delete.
+// #include <regex> // regex // TODO: Employ or delete.
 #include <sstream> // istringstream
 // Included and needed in linux_parser.h:
-// <string> // stoi and getline
+// <string> // getline, stoi and to_string
 // <unordered_map>
 // <vector>
 
 using std::replace;
 using std::all_of;
 using std::ifstream;
+// using std::regex; // TODO: Employ or delete.
 using std::istringstream;
+using std::getline;
 using std::string;
 using std::stoi;
-using std::getline;
+using std::to_string;
 using std::unordered_map;
 using std::vector;
 
@@ -173,13 +175,46 @@ int LinuxParser::RunningProcesses() {
   return -1;
 }
 
-// TODO: Read and return the user ID associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
+// Read and return the user ID associated with a process.
+string LinuxParser::Uid(int pid) {
+  string line;
+  string key;
+  string firstValue;
+  bool not_done = true;
+  ifstream filestream(kProcDirectory + to_string(pid) + kStatusFilename);
+  if (filestream.is_open()) {
+    while (not_done and getline(filestream, line)) {
+      istringstream linestream(line);
+      linestream >> key >> firstValue;
+      if (key == "Uid:")
+        return firstValue;
+    }
+  }
+  return string();
+}
 
-// TODO: Read and return the user associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+// Read and return the user associated with a process.
+string LinuxParser::User(int pid) {
+  string uid = LinuxParser::Uid(pid);
+
+  string line;
+  string user, pass, user_id;
+  ifstream filestream(kPasswordPath);
+  if (filestream.is_open()) {
+    while (getline(filestream, line)) {
+      replace(line.begin(), line.end(), ' ', '_');
+      replace(line.begin(), line.end(), ':', ' ');
+      istringstream linestream(line);
+      while (linestream >> user >> pass >> user_id) {
+        if (user_id == uid) {
+          return user;
+        }
+      }
+    }
+  }
+
+  return string();
+}
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
