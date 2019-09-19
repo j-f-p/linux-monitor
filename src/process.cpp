@@ -29,8 +29,10 @@ string Process::Ram() { return string(); }
 // Return the age of this process (in seconds).
 long int Process::UpTime() { return LinuxParser::UpTime(id); }
 
-// TODO: Return the command that generated this process
-string Process::Command() { return string(); }
+// Return the command that generated this process.
+string Process::Command() {
+  return LinuxParser::Command(id);
+}
 
 // Overload the "less than" comparison operator for Process objects.
 bool Process::operator<(Process const& a) const {
