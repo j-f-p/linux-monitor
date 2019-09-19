@@ -17,14 +17,14 @@ using std::string;
 // Return this process's ID
 int Process::Pid() { return id; }
 
-// TODO: Return the user (name) that generated this process
+// Return the user (name) that generated this process.
 string Process::User() { return LinuxParser::User(id); }
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() { return 0; }
 
-// TODO: Return this process's memory utilization
-string Process::Ram() { return string(); }
+// Return this process's memory utilization.
+string Process::Ram() { return LinuxParser::Ram(id); }
 
 // Return the age of this process (in seconds).
 long int Process::UpTime() { return LinuxParser::UpTime(id); }
