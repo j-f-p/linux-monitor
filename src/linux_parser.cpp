@@ -1,8 +1,9 @@
 #include "linux_parser.h"
 
-// dirent.h and unistd.h are used by vector<int> LinuxParser::Pids()
+// dirent.h and unistd.h are used by LinuxParser::Pids()
+// unistd.h is also used by LinuxParser::Uptime(int)
 #include <dirent.h>
-#include <unistd.h>
+#include <unistd.h> // sysconf(_SC_CLK_TCK)
 
 #include <algorithm> // replace, all_of
 #include <fstream> // ifstream
@@ -113,7 +114,7 @@ long LinuxParser::UpTime() {
   if (stream.is_open()) {
     getline(stream, line);
     istringstream linestream(line);
-    linestream >> uptime_as_long;
+    linestream >> uptime_as_long; // time since system boot in seconds
   }
   return uptime_as_long;
 }
@@ -218,11 +219,31 @@ string LinuxParser::User(int pid) {
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Ram(int pid[[maybe_unused]]) {
+  return string();
+}
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+// Read and return the uptime of a process.
+long LinuxParser::UpTime(int pid) {
+  long starttime; // process start time, measured since boot
+  ifstream stream(kProcDirectory  + to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    string line, value;
+    getline(stream, line);
+    istringstream linestream(line);
+    const int valNum = 22;
+    for(int i=1; i<valNum; i++){
+      linestream >> value;
+    }
+    // 22nd space-separated value in line stored as a long int
+    linestream >> starttime; // start time in clock ticks after boot
+  }
+  starttime /= sysconf(_SC_CLK_TCK); // start time in seconds after boot
+
+  // process uptime = time since boot - process start time since boot
+  // process uptime = system uptime - process start time
+  return UpTime() - starttime; // in seconds
+}
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
