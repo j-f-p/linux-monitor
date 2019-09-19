@@ -11,7 +11,7 @@
 // <vector>
 
 using std::string;
-// using std::to_string; // TODO: Employ or delete.
+using std::to_string;
 // using std::vector; // TODO: Employ or delete.
 
 // Return this process's ID
@@ -24,7 +24,7 @@ string Process::User() { return LinuxParser::User(id); }
 float Process::CpuUtilization() { return 0; }
 
 // Return this process's memory utilization.
-string Process::Ram() { return LinuxParser::Ram(id); }
+string Process::Ram() { return to_string(ram); }
 
 // Return the age of this process (in seconds).
 long int Process::UpTime() { return LinuxParser::UpTime(id); }
@@ -43,7 +43,7 @@ bool Process::operator<(Process const& a) const {
 
 // Overload the "greater than" comparison operator for Process objects.
 bool Process::operator>(Process const& a) const {
-  if(id > a.id)
+  if(ram > a.ram)
     return true;
   return false;
  }

@@ -221,7 +221,7 @@ string LinuxParser::User(int pid) {
 }
 
 // Read and return the memory used by a process.
-string LinuxParser::Ram(int pid) {
+long LinuxParser::Ram(int pid) {
   ifstream filestream(kProcDirectory + to_string(pid) + kStatusFilename);
   if (filestream.is_open()) {
     string line, key, firstValue;
@@ -233,12 +233,12 @@ string LinuxParser::Ram(int pid) {
       if (key == "VmSize:") {
         memory = stol(firstValue); // in kB
         memory /= 1000; // in MB
-        return to_string(memory);
+        return memory;
       }
       linestream.clear();
     }
   }
-  return string();
+  return -1;
 }
 
 // Read and return the uptime of a process.

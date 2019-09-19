@@ -34,7 +34,7 @@ long ActiveJiffies(int pid);
 // Processes
 std::string Uid(int pid);
 std::string User(int pid);
-std::string Ram(int pid);
+long Ram(int pid);
 long int UpTime(int pid);
 std::string Command(int pid);
 };  // namespace LinuxParser

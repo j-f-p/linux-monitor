@@ -31,7 +31,7 @@ vector<Process>& System::Processes() {
 
   processes_.clear();
   for(int pid: pids)
-    processes_.emplace_back(pid);
+    processes_.emplace_back(pid, LinuxParser::Ram(pid));
 
   sort(processes_.begin(), processes_.end(), greater<>());
   return processes_;
