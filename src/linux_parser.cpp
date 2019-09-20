@@ -122,10 +122,6 @@ long LinuxParser::UpTime() {
   return -1;
 }
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
-
 // Read and return CPU utilization.
 unordered_map<string, long> LinuxParser::aggregateCPUtickData() {
   string line;
@@ -224,6 +220,29 @@ string LinuxParser::User(int pid) {
     }
   }
   return string();
+}
+
+// Read and return the active process time in seconds for process pid.
+long LinuxParser::ActiveProcessTime(int pid) {
+  string line;
+  ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    getline(stream, line);
+    stream.close();
+  }
+  else {
+    return -1;
+  }
+  istringstream linestream(line);
+  string value;
+  const int valNum = 14;
+  for(int i=1; i<valNum; i++)
+    linestream >> value; // skip first 13 values
+  long utime, stime;
+// Clock ticks of process user and system time stored as long.
+  linestream >> utime >> stime; 
+// Return sum of these in seconds.
+  return (utime + stime) / sysconf(_SC_CLK_TCK);
 }
 
 // Read and return the memory used by a process.

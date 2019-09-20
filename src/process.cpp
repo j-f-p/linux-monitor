@@ -20,14 +20,16 @@ int Process::Pid() { return id; }
 // Return the user (name) that generated this process.
 string Process::User() { return LinuxParser::User(id); }
 
-// TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+// Return this process's CPU utilization.
+float Process::CpuUtilization() {
+  return static_cast<float>(LinuxParser::ActiveProcessTime(id)) / uptime;
+}
 
 // Return this process's memory utilization.
 string Process::Ram() { return to_string(ram); }
 
 // Return the age of this process (in seconds).
-long int Process::UpTime() { return LinuxParser::UpTime(id); }
+long int Process::UpTime() { return uptime; }
 
 // Return the command that generated this process.
 string Process::Command() {

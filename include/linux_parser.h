@@ -29,7 +29,7 @@ std::string Kernel();
 
 // CPU
 std::unordered_map<std::string, long> aggregateCPUtickData();
-long ActiveJiffies(int pid);
+long ActiveProcessTime(int pid);
 
 // Processes
 std::string Uid(int pid);
