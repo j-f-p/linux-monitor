@@ -211,8 +211,14 @@ string LinuxParser::User(int pid) {
       replace(line.begin(), line.end(), ':', ' ');
       linestream.str(line);
       while (linestream >> user >> pass >> user_id) {
-        if (user_id == uid)
+        if (user_id == uid) {
+          const unsigned max_size{8};
+// If user name has more than 8 characters. Retain only first 8 characters.
+// Thus, ensure space between USER and CPU[%] columns in display.
+          if(user.size() > max_size)
+            user.resize(max_size);
           return user;
+        }
       }
       linestream.clear();
     }
@@ -230,7 +236,7 @@ long LinuxParser::Ram(int pid) {
     while (getline(filestream, line)) {
       linestream.str(line);
       linestream >> key >> firstValue;
-      if (key == "VmSize:") {
+      if (key == "VmRSS:") {
         memory = stol(firstValue); // in kB
         memory /= 1000; // in MB
         return memory;
