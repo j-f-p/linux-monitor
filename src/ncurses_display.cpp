@@ -58,12 +58,13 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
 }
 
 void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
-                                      WINDOW* window, int n) {
+                                      WINDOW* window, int n, unsigned int pp) {
+//                                    WINDOW* window, int n) {
   int row{0};
   int const pid_column{2};
   int const user_column{9};
   int const cpu_column{19};
-  int const ram_column{26};
+  int const ram_column{27};
   int const time_column{35};
   int const command_column{46};
   wattron(window, COLOR_PAIR(2));
@@ -74,11 +75,16 @@ void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
+  float cpu;
   for (int i = 0; i < n; ++i) {
     mvwprintw(window, ++row, pid_column, to_string(processes[i].Pid()).c_str());
+    if(pp<10)
     mvwprintw(window, row, user_column, processes[i].User().c_str());
-    float cpu = processes[i].CpuUtilization() * 100;
-    mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 4).c_str());
+    else
+    mvwprintw(window, row, user_column, string(":)").c_str());
+    // This proves that the issue is to do with ncurses.
+    cpu = processes[i].CpuUtilization() * 100;
+    mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 5).c_str());
     mvwprintw(window, row, ram_column, processes[i].Ram().c_str());
     mvwprintw(window, row, time_column,
               Format::ElapsedTime(processes[i].UpTime()).c_str());
@@ -88,6 +94,7 @@ void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
 }
 
 void NCursesDisplay::Display(System& system, int n) {
+//void NCursesDisplay::Display(int n) {
   initscr();      // start ncurses
   noecho();       // do not print input values
   cbreak();       // terminate ncurses on ctrl + c
@@ -103,12 +110,16 @@ void NCursesDisplay::Display(System& system, int n) {
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     box(system_window, 0, 0);
     box(process_window, 0, 0);
+//  System system;
     DisplaySystem(system, system_window);
-    DisplayProcesses(system.Processes(), process_window, n);
+    DisplayProcesses(system.Processes(), process_window, n, system.pp());
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
     sleep_for(milliseconds(1));
+//  system.~System(); This causes double free runtime error that dumps core.
+//  Placing system hear did not affect process refresh rate, nor did it
+//  remove the appearance the "rootant".
   }
   endwin();
 }

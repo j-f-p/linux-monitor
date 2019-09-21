@@ -1,14 +1,11 @@
 #include "process.h"
-#include "linux_parser.h"
 
 // #include <unistd.h> // TODO: Employ or delete.
 // #include <cctype> // TODO: Employ or delete.
 // #include <sstream> // TODO: Employ or delete.
 // Included and needed in process.h:
+// linux_parser.h which requires inclusion of <vector>
 // <string> // to_string
-
-// Included and needed in linux_parser.h:
-// <vector>
 
 using std::string;
 using std::to_string;
@@ -22,11 +19,15 @@ string Process::User() { return LinuxParser::User(id); }
 
 // Return this process's CPU utilization.
 float Process::CpuUtilization() {
-  return static_cast<float>(LinuxParser::ActiveProcessTime(id)) / uptime;
+  return fraction_cpu;
 }
 
 // Return this process's memory utilization.
-string Process::Ram() { return to_string(ram); }
+string Process::Ram() {
+//if (ram > -1) // This case is guaranteed in System::Processes().
+    return to_string(ram);
+//return "-";
+}
 
 // Return the age of this process (in seconds).
 long int Process::UpTime() { return uptime; }
@@ -36,16 +37,18 @@ string Process::Command() {
   return LinuxParser::Command(id);
 }
 
-// Overload the "less than" comparison operator for Process objects.
-bool Process::operator<(Process const& a) const {
-  if(id < a.id)
-    return true;
-  return false;
- }
-
-// Overload the "greater than" comparison operator for Process objects.
+// Overload the "greater than" comparison operator for Process objects,
+// for sorting processes according to CPU utilization.
 bool Process::operator>(Process const& a) const {
-  if(ram > a.ram)
+  if(fraction_cpu > a.fraction_cpu)
     return true;
   return false;
- }
+}
+
+// Overload the "greater than" comparison operator for Process objects,
+// for sorting processes according to memory utilization.
+// bool Process::operator>(Process const& a) const {
+//   if(ram > a.ram)
+//     return true;
+//   return false;
+//  }

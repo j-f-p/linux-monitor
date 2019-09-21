@@ -26,12 +26,24 @@ using std::vector;
 Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes.
+//#include <fstream>
 vector<Process>& System::Processes() {
+  p++;
+//std::ofstream writer("debug.txt", std::ios::app);
+//writer << p << std::endl;
+//Refresh rate test.
   vector<int> pids{LinuxParser::Pids()};
-
-  processes_.clear();
-  for(int pid: pids)
-    processes_.emplace_back(pid, LinuxParser::Ram(pid), LinuxParser::UpTime(pid));
+ 
+//processes_.clear();
+  vector<Process>().swap(processes_);
+  long mem;
+  for(int pid: pids) {
+    mem = LinuxParser::Ram(pid);
+    if(mem > -1) 
+      processes_.emplace_back(pid, mem, LinuxParser::UpTime(pid));
+  //else: 
+  //  Process status file couldn't be opened. Thus, it is not listed.
+  }
 
   sort(processes_.begin(), processes_.end(), greater<>());
   return processes_;
