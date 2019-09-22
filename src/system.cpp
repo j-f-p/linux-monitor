@@ -26,25 +26,25 @@ using std::vector;
 Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes.
-//#include <fstream>
 vector<Process>& System::Processes() {
-  p++;
-//std::ofstream writer("debug.txt", std::ios::app);
-//writer << p << std::endl;
-//Refresh rate test.
   vector<int> pids{LinuxParser::Pids()};
- 
-//processes_.clear();
-  vector<Process>().swap(processes_);
-  long mem;
-  for(int pid: pids) {
-    mem = LinuxParser::Ram(pid);
-    if(mem > -1) 
-      processes_.emplace_back(pid, mem, LinuxParser::UpTime(pid));
-  //else: 
-  //  Process status file couldn't be opened. Thus, it is not listed.
-  }
 
+  processes_.clear();
+  long mem, activeProcTime, uptime;
+  for(int pid: pids) {
+    mem = LinuxParser::Ram(pid); // from /proc/[pid]/status
+    activeProcTime = LinuxParser::ActiveProcessTime(pid); // from --|
+    uptime = LinuxParser::UpTime(pid); // from /proc/[pid]/stat <---|
+
+    if(mem > -1 and activeProcTime > -1 and uptime > 0)
+      processes_.emplace_back(pid, mem, activeProcTime, uptime);
+  //else
+  //  Process object is not instantiated. So, process is not listed. One of the
+  //  following cases has occurred:
+  //  If mem is -1, process status file couldn't be opened.
+  //  If activeProcTime or uptime is -1, process stat file conldn't be opened.
+  //  If uptime is 0, then process CPU usage cannot be computed.
+  }
   sort(processes_.begin(), processes_.end(), greater<>());
   return processes_;
 }

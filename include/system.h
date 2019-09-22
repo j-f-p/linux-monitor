@@ -18,13 +18,11 @@ class System {
   int RunningProcesses();
   std::string Kernel();
   std::string OperatingSystem();
-  unsigned int pp() { return p; }
 
   // TODO: Define any necessary private members
  private:
   Processor cpu_;
   std::vector<Process> processes_;
-  unsigned int p {0};
 };
 
 #endif

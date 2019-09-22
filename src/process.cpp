@@ -18,16 +18,10 @@ int Process::Pid() { return id; }
 string Process::User() { return LinuxParser::User(id); }
 
 // Return this process's CPU utilization.
-float Process::CpuUtilization() {
-  return fraction_cpu;
-}
+float Process::CpuUtilization() { return fraction_cpu; }
 
 // Return this process's memory utilization.
-string Process::Ram() {
-//if (ram > -1) // This case is guaranteed in System::Processes().
-    return to_string(ram);
-//return "-";
-}
+string Process::Ram() { return to_string(ram); }
 
 // Return the age of this process (in seconds).
 long int Process::UpTime() { return uptime; }
@@ -37,18 +31,10 @@ string Process::Command() {
   return LinuxParser::Command(id);
 }
 
-// Overload the "greater than" comparison operator for Process objects,
-// for sorting processes according to CPU utilization.
+// Overload the "greater than" comparison operator for Process objects.
 bool Process::operator>(Process const& a) const {
-  if(fraction_cpu > a.fraction_cpu)
+//if(ram > a.ram) // to sort processes based on ram
+  if(fraction_cpu > a.fraction_cpu) // to sort processes based on CPU usage
     return true;
   return false;
 }
-
-// Overload the "greater than" comparison operator for Process objects,
-// for sorting processes according to memory utilization.
-// bool Process::operator>(Process const& a) const {
-//   if(ram > a.ram)
-//     return true;
-//   return false;
-//  }

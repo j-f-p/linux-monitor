@@ -213,9 +213,6 @@ string LinuxParser::User(int pid) {
 // Thus, ensure space between USER and CPU[%] columns in display.
           if(user.size() > max_size)
             user.resize(max_size);
-//std::ofstream writer("debug.txt", std::ios::app);
-//writer << to_string(pid) + ": " << user << std::endl;
-// rootant does not appear, thus, ncurses is not refreshing?
           return user;
         }
       }
@@ -261,17 +258,11 @@ long LinuxParser::Ram(int pid) {
       if (key == "VmRSS:") {
         memory = stol(firstValue); // in kB
         memory /= 1000; // in MB
-//if(memory < 0) {
-//std::ofstream writer("debug.txt", std::ios::app);
-//writer << to_string(pid) + ": " << to_string(memory) << std::endl;}
-//Some processes had memory = 0 from status file.
         return memory;
       }
       linestream.clear();
     }
   }
-//std::ofstream writer("debug.txt", std::ios::app);
-//writer << to_string(pid) + ": " << "no status file" << std::endl;
   return -1;
 }
 
