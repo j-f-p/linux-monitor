@@ -67,6 +67,12 @@ void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
   int const ram_column{27};
   int const time_column{35};
   int const command_column{46};
+  static unsigned int ppp=0;
+  // bool eraser = false;
+  if(pp>ppp) {
+    ppp = pp;
+    // eraser = true;
+  }
   wattron(window, COLOR_PAIR(2));
   mvwprintw(window, ++row, pid_column, "PID");
   mvwprintw(window, row, user_column, "USER");
@@ -77,11 +83,24 @@ void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
   wattroff(window, COLOR_PAIR(2));
   float cpu;
   for (int i = 0; i < n; ++i) {
+    // if(eraser) {
+    //   // mvwprintw(window, row, user_column, string("       ").c_str());
+    //   wmove(window, row, 0);
+    //   // wprintw(window, "========");
+    //   wclrtoeol(window);
+    //   wrefresh(window);
+    // }
     mvwprintw(window, ++row, pid_column, to_string(processes[i].Pid()).c_str());
-    if(pp<10)
-    mvwprintw(window, row, user_column, processes[i].User().c_str());
-    else
-    mvwprintw(window, row, user_column, string(":)").c_str());
+    mvwprintw(window, row, user_column, string(to_string(103 - pp)).c_str());
+    // mvwprintw(window, row, user_column, string(to_string(pp)+" "+to_string(ppp)+" "+ppps).c_str());
+    // if(pp<2)
+    // mvwprintw(window, row, user_column, processes[i].User().c_str());
+    // else
+    // mvwprintw(window, row, user_column, string(":)").c_str());
+    // else if(pp<4)
+    // mvwprintw(window, row, user_column, string("       ").c_str());
+    // else if(pp<6)
+    // mvwprintw(window, row, user_column, string(":)").c_str());
     // This proves that the issue is to do with ncurses.
     cpu = processes[i].CpuUtilization() * 100;
     mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 5).c_str());
@@ -91,6 +110,7 @@ void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
     mvwprintw(window, row, command_column,
               processes[i].Command().substr(0, window->_maxx - 46).c_str());
   }
+  // wrefresh(window);
 }
 
 void NCursesDisplay::Display(System& system, int n) {
@@ -106,6 +126,7 @@ void NCursesDisplay::Display(System& system, int n) {
       newwin(3 + n, x_max - 1, system_window->_maxy + 1, 0);
 
   while (1) {
+    werase(process_window);
     init_pair(1, COLOR_BLUE, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     box(system_window, 0, 0);
@@ -116,6 +137,9 @@ void NCursesDisplay::Display(System& system, int n) {
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
+    // leaveok(process_window, false);
+    // redrawwin(process_window);
+    // wredrawln(process_window, 0, n);
     sleep_for(milliseconds(1));
 //  system.~System(); This causes double free runtime error that dumps core.
 //  Placing system hear did not affect process refresh rate, nor did it
