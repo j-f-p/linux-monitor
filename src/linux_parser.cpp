@@ -209,7 +209,7 @@ string LinuxParser::User(int pid) {
       while (linestream >> user >> pass >> user_id) {
         if (user_id == uid) {
           const unsigned max_size{8};
-// If user name has more than 8 characters. Retain only first 8 characters.
+// If user name has more than 8 characters, retain only first 8 characters.
 // Thus, ensure space between USER and CPU[%] columns in display.
           if(user.size() > max_size)
             user.resize(max_size);

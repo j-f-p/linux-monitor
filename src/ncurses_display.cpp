@@ -72,14 +72,24 @@ void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
   wattron(window, COLOR_PAIR(2));
   mvwprintw(window, ++row, pid_column, "PID");
   mvwprintw(window, row, user_column, "USER");
-  mvwprintw(window, row, cpu_column, "CPU[%%]");
+  mvwprintw(window, row, cpu_column, "CPU[%]");
   mvwprintw(window, row, ram_column, "RAM[MB]");
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
   float cpu;
+  long pid;
   for (int i = 0; i < n; ++i) {
-    mvwprintw(window, ++row, pid_column,to_string(processes[i].Pid()).c_str());
+    pid = processes[i].Pid();
+    if(pid < 1000000)
+      mvwprintw(window, ++row, pid_column,to_string(pid).c_str());
+    else {
+// PID has more than 6 digits. Thus, retain only first 5 digits, prepended by
+// ">". This ensures space between PID and USER columns in display. The ">"
+// indicates that the actual value is greater than the displayed value.
+      mvwprintw(window, ++row, pid_column,
+        (">" + to_string(pid).substr(0, 5)).c_str());
+    }
     mvwprintw(window, row, user_column, processes[i].User().c_str());
     cpu = processes[i].CpuUtilization() * 100;
     mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 5).c_str());
