@@ -1,12 +1,12 @@
-#include "processor.h"
+#include "processor.h" // class Processor
 
-#include "linux_parser.h"
+#include "linux_parser.h" // LinuxParser::aggregateCPUtickData
+// linux_parser.h includes:
+//   <string>
+//   <unordered_map>
 
 #include <chrono> // seconds
 #include <thread> // sleep_for
-// Included and needed in linux_parser.h:
-// <string>
-// <unordered_map>
 
 using std::chrono::seconds;
 using std::this_thread::sleep_for;
@@ -28,5 +28,5 @@ float Processor::Utilization() {
   idletickTypes = ticks["idle"] + ticks["iowait"] - idletickTypes;
 
   return static_cast<float>(activetickTypes)
-    / static_cast<float>(activetickTypes + idletickTypes);
+    / (activetickTypes + idletickTypes);
 }

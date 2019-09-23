@@ -1,4 +1,8 @@
-#include "linux_parser.h"
+#include "linux_parser.h" // LinuxParser::
+// linux_parser.h includes:
+//   <string> // getline, stoi, stol and to_string
+//   <unordered_map>
+//   <vector>
 
 // dirent.h and unistd.h are used by LinuxParser::Pids()
 // unistd.h is also used by LinuxParser::Uptime(int)
@@ -7,17 +11,11 @@
 
 #include <algorithm> // replace, all_of
 #include <fstream> // ifstream
-// #include <regex> // regex // TODO: Employ or delete.
 #include <sstream> // istringstream
-// Included and needed in linux_parser.h:
-// <string> // getline, stoi, stol and to_string
-// <unordered_map>
-// <vector>
 
 using std::replace;
 using std::all_of;
 using std::ifstream;
-// using std::regex; // TODO: Employ or delete.
 using std::istringstream;
 using std::getline;
 using std::string;
@@ -65,24 +63,24 @@ string LinuxParser::Kernel() {
   return string();
 }
 
-// BONUS: Update this to use std::filesystem
-vector<int> LinuxParser::Pids() {
-  vector<int> pids;
-  DIR* directory = opendir(kProcDirectory.c_str());
-  struct dirent* file;
-  while ((file = readdir(directory)) != nullptr) {
-    // Is this a directory?
-    if (file->d_type == DT_DIR) {
-      // Is every character of the name a digit?
-      string filename(file->d_name);
-      if (all_of(filename.begin(), filename.end(), isdigit)) {
-        int pid = stoi(filename);
-        pids.push_back(pid);
-      }
-    }
+// Read and return CPU utilization.
+unordered_map<string, long> LinuxParser::aggregateCPUtickData() {
+  string line;
+  string label;
+  long user, nice, system, idle, iowait, irq, softirq, steal;
+  ifstream stream(kProcDirectory + kStatFilename);
+  if (stream.is_open()) {
+    getline(stream, line);
+    istringstream linestream(line);
+    linestream >> label >> user >> nice >> system
+               >> idle >> iowait >> irq >> softirq >> steal;
+    return unordered_map<string, long> {
+      {"user", user}, {"nice", nice}, {"system", system},
+      {"idle", idle}, {"iowait", iowait},
+      {"irq", irq}, {"softirq", softirq}, {"steal", steal}
+    };
   }
-  closedir(directory);
-  return pids;
+  return unordered_map<string, long> {};
 }
 
 // Read and return the system memory utilization.
@@ -109,37 +107,6 @@ float LinuxParser::MemoryUtilization() {
     return (mem_tot - mem_free) / mem_tot;
   }
   return -1;
-}
-
-// Read system uptime from filesystem.
-long LinuxParser::UpTime() {
-  ifstream stream(kProcDirectory + kUptimeFilename);
-  if (stream.is_open()) {
-    string line;
-    getline(stream, line, ' ');
-    return stol(line);
-  }
-  return -1;
-}
-
-// Read and return CPU utilization.
-unordered_map<string, long> LinuxParser::aggregateCPUtickData() {
-  string line;
-  string label;
-  long user, nice, system, idle, iowait, irq, softirq, steal;
-  ifstream stream(kProcDirectory + kStatFilename);
-  if (stream.is_open()) {
-    getline(stream, line);
-    istringstream linestream(line);
-    linestream >> label >> user >> nice >> system
-               >> idle >> iowait >> irq >> softirq >> steal;
-    return unordered_map<string, long> {
-      {"user", user}, {"nice", nice}, {"system", system},
-      {"idle", idle}, {"iowait", iowait},
-      {"irq", irq}, {"softirq", softirq}, {"steal", steal}
-    };
-  }
-  return unordered_map<string, long> {};
 }
 
 // Read and return the total number of processes.
@@ -178,6 +145,37 @@ int LinuxParser::RunningProcesses() {
   return -1;
 }
 
+// Read system uptime from filesystem.
+long LinuxParser::UpTime() {
+  ifstream stream(kProcDirectory + kUptimeFilename);
+  if (stream.is_open()) {
+    string line;
+    getline(stream, line, ' ');
+    return stol(line);
+  }
+  return -1;
+}
+
+// BONUS: Update this to use std::filesystem
+vector<int> LinuxParser::Pids() {
+  vector<int> pids;
+  DIR* directory = opendir(kProcDirectory.c_str());
+  struct dirent* file;
+  while ((file = readdir(directory)) != nullptr) {
+    // Is this a directory?
+    if (file->d_type == DT_DIR) {
+      // Is every character of the name a digit?
+      string filename(file->d_name);
+      if (all_of(filename.begin(), filename.end(), isdigit)) {
+        int pid = stoi(filename);
+        pids.push_back(pid);
+      }
+    }
+  }
+  closedir(directory);
+  return pids;
+}
+
 // Read and return the user ID associated with a process.
 string LinuxParser::Uid(int pid) {
   ifstream filestream(kProcDirectory + to_string(pid) + kStatusFilename);
@@ -197,9 +195,11 @@ string LinuxParser::Uid(int pid) {
 
 // Read and return the user associated with a process.
 string LinuxParser::User(int pid) {
+  string uid = LinuxParser::Uid(pid);
+  if(uid.empty())
+    return string();
   ifstream filestream(kPasswordPath);
   if (filestream.is_open()) {
-    string uid = LinuxParser::Uid(pid);
     string line, user, pass, user_id;
     istringstream linestream;
     while (getline(filestream, line)) {
@@ -237,10 +237,10 @@ long LinuxParser::ActiveProcessTime(int pid) {
   string value;
   const int valNum = 14;
   for(int i=1; i<valNum; i++)
-    linestream >> value; // skip first 13 values
+    linestream >> value; // Skip first 13 values.
   long utime, stime;
 // Clock ticks of process user and system time stored as long.
-  linestream >> utime >> stime; 
+  linestream >> utime >> stime;
 // Return sum of these in seconds.
   return (utime + stime) / sysconf(_SC_CLK_TCK);
 }
@@ -281,7 +281,7 @@ long LinuxParser::UpTime(int pid) {
   string value;
   const int valNum = 22;
   for(int i=1; i<valNum; i++)
-    linestream >> value; // skip first 21 values
+    linestream >> value; // Skip first 21 values.
   long starttime; // 22nd space-separated value in line stored as a long int
   linestream >> starttime; // process start time in clock ticks after boot
   starttime /= sysconf(_SC_CLK_TCK); // start time in seconds after boot

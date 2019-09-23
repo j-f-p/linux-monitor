@@ -1,14 +1,17 @@
-#include "ncurses_display.h"
-#include "format.h" // ElapsedTime
+#include "ncurses_display.h" // NCursesDisplay::
+// ncurses_display.h includes
+//   "system.h" // class System
+//   system.h includes:
+//     "process.h" // class Process
+//     process.h includes:
+//       <string> // to_string
+//     <vector>
+//   <curses.h> // initscr, ....
+
+#include "format.h" // Format::ElapsedTime
 
 #include <chrono> // milliseconds
 #include <thread> // sleep_for
-
-// Included and needed in ncurses_display.h:
-// system.h which includes:
-//   process.h which includes <string> // to_string
-//   <vector>
-// <curses.h> // https://pubs.opengroup.org/onlinepubs/7908799/xcurses/curses.h.html
 
 using std::string;
 using std::to_string;
@@ -76,7 +79,7 @@ void NCursesDisplay::DisplayProcesses(vector<Process>& processes,
   wattroff(window, COLOR_PAIR(2));
   float cpu;
   for (int i = 0; i < n; ++i) {
-    mvwprintw(window, ++row, pid_column, to_string(processes[i].Pid()).c_str());
+    mvwprintw(window, ++row, pid_column,to_string(processes[i].Pid()).c_str());
     mvwprintw(window, row, user_column, processes[i].User().c_str());
     cpu = processes[i].CpuUtilization() * 100;
     mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 5).c_str());

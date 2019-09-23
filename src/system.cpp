@@ -1,29 +1,19 @@
-#include "system.h"
+#include "system.h" // class System
+// system.h includes:
+//   "process.h" // class Process
+//   process.h includes:
+//     <string>
+//   <vector>
 
-#include "linux_parser.h"
+#include "linux_parser.h" // LinuxParser::
 
 #include <algorithm> // sort
 #include <functional> // greater
 
-// #include <cstddef> // size_t // TODO: Employ or delete.
-// #include <set> // TODO: Employ or delete.
-
-// Included and needed in system.h:
-// process.h which includes <string>
-// <vector>
-
-// Inlcuded and needed in linux_parser.h:
-// <unist.h> // TODO: Employ or delete these two lines.
-
-// using std::set; // TODO: Employ or delete.
-// using std::size_t; // TODO: Employ or delete.
 using std::sort;
 using std::greater;
 using std::string;
 using std::vector;
-
-// Return the system's CPU
-Processor& System::Cpu() { return cpu_; }
 
 // Return a container composed of the system's processes.
 vector<Process>& System::Processes() {

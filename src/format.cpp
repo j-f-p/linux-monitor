@@ -1,7 +1,6 @@
-#include "format.h"
-
-// Included and needed in format.h:
-// <string> // to_string
+#include "format.h" // Format::
+// format.h includes:
+//   <string> // to_string
 
 using std::to_string;
 using std::string;

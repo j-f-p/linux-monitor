@@ -1,19 +1,13 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "linux_parser.h"
-
 #include <string>
-/*
-Basic class for Process representation
-It contains relevant attributes as shown below
-*/
+
 class Process {
  public:
   Process(int pid, long mem, long apt, long ut):
         id(pid), ram(mem), uptime(ut) {
-    fraction_cpu
-      = static_cast<float>(apt) / uptime;
+    fraction_cpu = static_cast<float>(apt) / uptime;
   };
   int Pid();
   std::string User();
@@ -21,7 +15,6 @@ class Process {
   std::string Ram();
   long int UpTime();
   std::string Command();
-  bool operator<(Process const& a) const;
   bool operator>(Process const& a) const;
 
  private:

@@ -1,16 +1,17 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include "process.h"
-#include "processor.h"
+#include "process.h" // class Process
+// process.h includes:
+//   <string>
+
+#include "processor.h" // class Processor
 
 #include <vector>
-// Included and needed in process.h:
-// <string>
 
 class System {
  public:
-  Processor& Cpu();
+  Processor& Cpu() { return cpu_; };
   std::vector<Process>& Processes();
   float MemoryUtilization();
   long UpTime();
@@ -19,7 +20,6 @@ class System {
   std::string Kernel();
   std::string OperatingSystem();
 
-  // TODO: Define any necessary private members
  private:
   Processor cpu_;
   std::vector<Process> processes_;
