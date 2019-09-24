@@ -2,7 +2,7 @@
 Objective: This is a completion of the [System Monitor Project](https://github.com/udacity/CppND-System-Monitor).
 
 ## Description
-This project is a Linux system process monitor. It is written in C++, compliant with the 2017 standard. This project employs [ncurses](https://www.gnu.org/software/ncurses/) for graphical output, specifically, `libncurses5-dev`.
+This project is a Linux system monitor. Data that it reports includes memory and CPU utilization of the system and of the system's most intense software processes. The top ten processes are listed in order of descending CPU usage. This project is written in C++, compliant with the 2017 standard. It employs the [ncurses](https://www.gnu.org/software/ncurses/) C/C++ user interface library.
 
 ![System Monitor](images/screenshot.png)<br>
 *Sample Execution Screenshot*
